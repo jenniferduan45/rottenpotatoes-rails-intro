@@ -14,7 +14,14 @@ class MoviesController < ApplicationController
     else
       @ratings_to_show = ratings.keys
     end
-    @movies = Movie.with_ratings(@ratings_to_show)
+    @ratings_to_show_hash = @ratings_to_show.map{ |element| [ element, '1' ] }.to_h
+    sort = params[:sort]
+    @movies = Movie.with_ratings(@ratings_to_show, sort)
+    if sort == 'title'
+      @title_css = 'hilite bg-warning'
+    elsif sort == 'release_date'
+      @release_date_css = 'hilite bg-warning'
+    end
   end
 
   def new
