@@ -8,14 +8,25 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = Movie.all_ratings
-    ratings = params[:ratings]
+    if !params.has_key?(:sort) && !params.has_key?(:ratings)
+      if params.has_key?(:commit)
+        session[:sort] = ''
+        session[:ratings] = {}
+      end
+      ratings = session[:ratings]
+      sort = session[:sort]
+    else
+      ratings = params[:ratings]
+      sort = params[:sort]
+      session[:sort] = sort
+      session[:ratings] = ratings
+    end
     if ratings.nil?
       @ratings_to_show = []
     else
       @ratings_to_show = ratings.keys
     end
     @ratings_to_show_hash = @ratings_to_show.map{ |element| [ element, '1' ] }.to_h
-    sort = params[:sort]
     @movies = Movie.with_ratings(@ratings_to_show, sort)
     if sort == 'title'
       @title_css = 'hilite bg-warning'
