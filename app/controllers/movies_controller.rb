@@ -8,13 +8,14 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = Movie.all_ratings
+    if !session.has_key?(:sort) && !session.has_key?(:ratings)
+      session[:ratings] = @all_ratings.map{ |element| [element, '1'] }.to_h
+    end
     if !params.has_key?(:sort) && !params.has_key?(:ratings)
       if params.has_key?(:commit)
-        session[:sort] = ''
-        session[:ratings] = {}
+        redirect_to movies_path(:sort => '', :ratings => {}) and return
       end
-      ratings = session[:ratings]
-      sort = session[:sort]
+      redirect_to movies_path(:sort => session[:sort], :ratings => session[:ratings]) and return
     else
       ratings = params[:ratings]
       sort = params[:sort]
@@ -26,7 +27,7 @@ class MoviesController < ApplicationController
     else
       @ratings_to_show = ratings.keys
     end
-    @ratings_to_show_hash = @ratings_to_show.map{ |element| [ element, '1' ] }.to_h
+    @ratings_to_show_hash = @ratings_to_show.map{ |element| [element, '1'] }.to_h
     @movies = Movie.with_ratings(@ratings_to_show, sort)
     if sort == 'title'
       @title_css = 'hilite bg-warning'
